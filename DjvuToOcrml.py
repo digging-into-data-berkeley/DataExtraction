@@ -21,6 +21,7 @@ import requests
 from lxml import etree
 
 # initializing global transformer, surround around try/catch or accept as parameter?
+print os.getcwd()
 transform = etree.XSLT(etree.parse('config/DjVuToOcrml.xsl'))
 
 def processDirectory(dir_path):
@@ -44,15 +45,18 @@ def _transformDjvu(abs_path, filename, ocrml_path):
     djvu_path = abs_path + '/' + filename
     try:
         f_djvu = codecs.open(djvu_path, "r", 'utf-8')
-        f_ocrml = codecs.open(ocrml_path, "w", 'utf-8')
         # check for proper utf character sets
         djvu_xml = etree.XML(f_djvu.read())
         ocrml = transform(djvu_xml)
+        f_ocrml = codecs.open(ocrml_path, "w", 'utf-8')
         f_ocrml.write(unicode(ocrml))
+    except:
+    	print "Unexpected error: ", sys.exc_info()[0]
     finally:
         # close the source djvu and destination ocrml files
         f_djvu.close()
-        f_ocrml.close()
+        if f_ocrml:
+        	f_ocrml.close()
 
 def _getInput():
     """ Command Line Input Parsing
