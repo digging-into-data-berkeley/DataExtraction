@@ -9,20 +9,11 @@ __author__ = "Luis Aguilar"
 __email__ = "luis@berkeley.edu"
  
 from optparse import OptionParser
-import csv
-import glob
-import pdb
+#import pdb
 import os
 import codecs
-import commands
 import sys
-import StringIO
-import requests
 from lxml import etree
-
-# initializing global transformer, surround around try/catch or accept as parameter?
-print os.getcwd()
-transform = etree.XSLT(etree.parse('config/DjVuToOcrml.xsl'))
 
 def processDirectory(dir_path):
     """ Process the input directory
@@ -30,7 +21,7 @@ def processDirectory(dir_path):
 	    Process only djvu files that have not been transformed from
 	    directory path parameter.
     """
-    # extract absolute path from user submitted path value, should put try/catch
+    # extract absolute path from user submitted path value
     abs_path = os.path.abspath(dir_path)
     # loop through and open/transform djvu files
     for filename in os.listdir(abs_path):
@@ -41,23 +32,21 @@ def processDirectory(dir_path):
             _transformDjvu(abs_path, filename, ocrml_path)
 
 def _transformDjvu(abs_path, filename, ocrml_path):
-    global transform
     djvu_path = abs_path + '/' + filename
     try:
-        f_djvu = codecs.open(djvu_path, "r", 'utf-8')
-        # check for proper utf character sets
-        djvu_xml = etree.XML(f_djvu.read())
-        ocrml = transform(djvu_xml)
-        f_ocrml = codecs.open(ocrml_path, "w", 'utf-8')
-        f_ocrml.write(unicode(ocrml))
+    	# open transformer to process the djvu XML and convert to ocrml
+    	transform = etree.XSLT(etree.parse('config/djvu_ocrml.xsl'))
+        with open(djvu_path, "r") as f_djvu, \
+        codecs.open(ocrml_path, "w", 'utf-8') as f_ocrml:
+            # check for proper utf character sets
+            djvu_xml = etree.XML(f_djvu.read())
+            ocrml = transform(djvu_xml)
+            #f_ocrml.write(ocrml)
+            f_ocrml.write(unicode(ocrml))
+    except IOError as e:
+    	print "I/O error({0}): {1}".format(e.errno, e.strerror)
     except:
-    	print "Unexpected error: ", sys.exc_info()[0]
-    finally:
-        # close the source djvu and destination ocrml files
-        f_djvu.close()
-        if f_ocrml:
-        	f_ocrml.close()
-
+    	print "Unexpected error: ", sys.exc_info()
 def _getInput():
     """ Command Line Input Parsing
 

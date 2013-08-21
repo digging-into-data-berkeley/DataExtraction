@@ -1,16 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-    exclude-result-prefixes="xs"
-    version="1.0">
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:output method="xml" indent="yes"/>
-    
-    <!-- Adding an empty fonttbl node, will have to look at other examples to extract this -->
+    <xsl:output encoding="UTF-8"/>
     <xsl:template match="/">
         <xsl:element name="document">
         <xsl:element name="fonttbl"/>
             <xsl:for-each select="//OBJECT">
-                <xsl:element name="page">    
+                <xsl:element name="page">
                     <xsl:attribute name="w">
                         <xsl:value-of select="@width"/>
                     </xsl:attribute>
@@ -41,7 +37,6 @@
             </xsl:for-each>
         </xsl:element>
     </xsl:template>
-    
     <xsl:template match="HIDDENTEXT/PAGECOLUMN/REGION/PARAGRAPH">
         <xsl:if test="child::node()">
             <xsl:element name="region">
@@ -58,10 +53,9 @@
             </xsl:element>
         </xsl:if>
     </xsl:template>
-    
     <xsl:template match="LINE">
         <xsl:element name="line">
             <xsl:value-of select="normalize-space(.)"/>
         </xsl:element>
-    </xsl:template>    
+    </xsl:template>
 </xsl:stylesheet>
