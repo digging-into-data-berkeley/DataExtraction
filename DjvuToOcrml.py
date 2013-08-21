@@ -15,21 +15,36 @@ import codecs
 import sys
 from lxml import etree
 
-def processDirectory(dir_path):
+def processInput(path):
     """ Process the input directory
 
 	    Process only djvu files that have not been transformed from
 	    directory path parameter.
     """
-    # extract absolute path from user submitted path value
-    abs_path = os.path.abspath(dir_path)
-    # loop through and open/transform djvu files
-    for filename in os.listdir(abs_path):
-        # establish file path for ocrml file
-        ocrml_path = abs_path + '/' + filename.replace('djvu', 'ocrml')
-        # only process and create ocrml file if it doesn't already exist
-        if filename.endswith("djvu.xml") and not os.path.isfile(ocrml_path):
-            _transformDjvu(abs_path, filename, ocrml_path)
+
+    # check if passed path is to a directory or to a file
+    if os.path.isfile(path):
+        # extract absolute path from user submitted path value
+        abs_path = os.path.dirname(os.path.abspath(path))
+        filename = os.path.basename(path)
+        processFile(abs_path, filename)
+    elif os.path.isdir(path):
+        # extract absolute path from user submitted path value
+        abs_path = os.path.abspath(path)
+        # loop through and open/transform djvu files
+        for filename in os.listdir(abs_path):
+            processFile(abs_path, filename)
+    else:
+        print "An invalid directory or file was passed as input"
+
+
+def processFile(abs_path, filename):
+    # establish file path for ocrml file
+    ocrml_path = abs_path + '/' + filename.replace('djvu', 'ocrml')
+    print ocrml_path
+    # only process and create ocrml file if it doesn't already exist
+    if filename.endswith("djvu.xml") and not os.path.isfile(ocrml_path):
+        _transformDjvu(abs_path, filename, ocrml_path)    
 
 def _transformDjvu(abs_path, filename, ocrml_path):
     djvu_path = abs_path + '/' + filename
@@ -63,7 +78,7 @@ def _getInput():
 
 def main():
     userInput = _getInput()
-    processDirectory(userInput['src'])
+    processInput(userInput['src'])
     # close the transform global?
 
 if __name__ == '__main__':
